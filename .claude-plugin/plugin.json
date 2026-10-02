@@ -1,0 +1,8 @@
+{
+  "name": "orquestrador-otimizacao",
+  "description": "Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr): cadastro de cliente, rodadas de segunda e quinta com agentes leitores, três réguas e diário de bordo.",
+  "version": "0.1.0",
+  "author": {"name": "Luis Andrade", "email": "luisandrade.cct@gmail.com"},
+  "homepage": "https://convertr.com.br",
+  "keywords": ["otimizacao", "meta-ads", "google-ads", "ecommerce", "agentes"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "convertr",
+  "owner": {"name": "Luis Andrade", "email": "luisandrade.cct@gmail.com"},
+  "plugins": [
+    {
+      "name": "orquestrador-otimizacao",
+      "source": "./",
+      "description": "Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr)."
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "cliente": "nome-da-pasta",
+  "nome": "Nome da Loja",
+  "site": "https://www.loja.com.br",
+  "plataforma": "nuvemshop | tray | shopify | vtex | outra",
+  "fuso": "-03:00",
+  "credencial_google": "/caminho/para/service-account.json",
+  "planilhas": {
+    "metas": {
+      "id": "",
+      "modelo": "13.0 | personalizado | nenhum",
+      "celulas": {
+        "atualizacao": "configs!B5",
+        "metas_do_mes": "Visão Geral!B5:N22",
+        "realizado_do_mes": "Visão Geral!B24:N45",
+        "canais": "Acom. Canais!A2:AC40"
+      }
+    },
+    "base_pedidos": {
+      "id": "",
+      "aba": "Banco de Dados - Claude",
+      "colunas": {
+        "id": "id_pedido",
+        "data": "data_criacao",
+        "total": "total_pedido",
+        "utm_source": "utm_source",
+        "utm_campaign": "utm_campaign",
+        "utm_content": "utm_content",
+        "utm_term": "utm_term"
+      },
+      "formato_data": "%d/%m/%Y",
+      "faturado": {
+        "tipo": "pagamento",
+        "coluna_pagamento": "status_pagamento",
+        "valor_pago": "paid",
+        "coluna_status": "status",
+        "valor_cancelado": "cancelled"
+      },
+      "_faturado_alternativo": {
+        "tipo": "situacao",
+        "coluna": "situacao",
+        "excluir_se_contem": ["Cancelado", "Pendente", "Reembols"]
+      }
+    }
+  },
+  "contas": {
+    "meta_ads": "",
+    "google_ads": "",
+    "google_ads_mcc": "",
+    "ga4": "",
+    "merchant_center": "",
+    "clarity": ""
+  },
+  "concorrentes": [
+    {"nome": "", "site": "", "instagram": ""}
+  ],
+  "pagina_esgotada_texto": ["Erro - 404", "Página não encontrada"]
+}
