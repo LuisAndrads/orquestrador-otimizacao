@@ -4,7 +4,7 @@
   "site": "https://www.loja.com.br",
   "plataforma": "nuvemshop | tray | shopify | vtex | outra",
   "fuso": "-03:00",
-  "credencial_google": "/caminho/para/service-account.json",
+  "credencial_google": "",
   "planilhas": {
     "metas": {
       "id": "",
@@ -35,11 +35,6 @@
         "valor_pago": "paid",
         "coluna_status": "status",
         "valor_cancelado": "cancelled"
-      },
-      "_faturado_alternativo": {
-        "tipo": "situacao",
-        "coluna": "situacao",
-        "excluir_se_contem": ["Cancelado", "Pendente", "Reembols"]
       }
     }
   },
@@ -52,7 +47,22 @@
     "clarity": ""
   },
   "concorrentes": [
-    {"nome": "", "site": "", "instagram": ""}
+    {
+      "nome": "",
+      "site": "",
+      "instagram": ""
+    }
   ],
-  "pagina_esgotada_texto": ["Erro - 404", "Página não encontrada"]
+  "pagina_esgotada_texto": [
+    "Erro - 404",
+    "Página não encontrada"
+  ],
+  "metas_manuais": {
+    "_uso": "só quando não houver planilha de metas",
+    "AAAA-MM": {
+      "faturamento_faturado": 0,
+      "roas_faturado": 0,
+      "investimento": 0
+    }
+  }
 }

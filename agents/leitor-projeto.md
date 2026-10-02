@@ -22,6 +22,12 @@ Você é o leitor de projeto do orquestrador de otimização.
   dois números e a diferença, sem escolher um. Se o script avisar linhas
   repetidas na base, repita o aviso.
 
+**Sem planilha de metas:** use `metas_manuais` do `cliente.json` para a meta
+e busque o realizado nas fontes que existirem (base de pedidos pelo
+`pedidos.py`; investimento pelas MCPs de anúncio; sessões pelo GA4). O que não
+tiver fonte sai como "sem dado". **Sem base de pedidos:** a conferência sai
+como "sem dado (cliente sem base de pedidos)".
+
 Onde fica cada número está no `cliente.json` (`planilhas.metas.celulas`) e no
 `CONTEXTO.md`, seção "Planilha de metas". Use `le_planilha.py --cliente
 <cliente.json> --chave metas "<aba>!<intervalo>"`; para descobrir abas,

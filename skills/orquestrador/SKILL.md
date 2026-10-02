@@ -161,4 +161,6 @@ decisões mais recentes dos `DECISOES.md`.
 - Consulta que gere custo (BigQuery grande, ferramenta paga): pare e pergunte.
 - Sem dado, escreva que não há. Nunca estime para fechar uma seção.
 - Toda conversa sobre o cliente termina com registro escrito: entrada em
-  `DECISOES.md` e `ABERTO.md` atualizado.
+  `DECISOES.md` e `ABERTO.md` atualizado. Numa rodada, esse registro é o
+  diário em `otimizacoes/` até o gestor executar; o `registrar` leva o resto
+  para `DECISOES.md` e `ABERTO.md`.
