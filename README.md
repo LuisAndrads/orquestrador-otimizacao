@@ -27,11 +27,11 @@ para qualquer cliente.
 No Claude Code:
 
 ```
-/plugin marketplace add luisandradecct/orquestrador-otimizacao
+/plugin marketplace add LuisAndrads/orquestrador-otimizacao
 /plugin install orquestrador-otimizacao@convertr
 ```
 
-(Troque `luisandradecct` pelo usuário do GitHub onde o repositório estiver.
+(Repositório: https://github.com/LuisAndrads/orquestrador-otimizacao.
 Repositório privado: peça acesso ao Luis antes.)
 
 Requisitos:
