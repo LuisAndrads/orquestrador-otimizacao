@@ -27,6 +27,18 @@ ticket):
 Use as abas da planilha de metas (`le_planilha.py`) e as ferramentas de
 leitura disponíveis.
 
+## Biblioteca de Anúncios pelo navegador
+
+Quando a ferramenta de biblioteca de anúncios da MCP do Meta não estiver
+disponível, leia pelo navegador (Claude in Chrome), só leitura e sem captura de
+tela: abra
+`https://www.facebook.com/ads/library/?active_status=active&ad_type=all&country=BR&q=<nome-ou-site-do-concorrente>&search_type=keyword_unordered&media_type=all`,
+espere cinco segundos e use a leitura do texto da página (`get_page_text`). O
+texto traz quantos anúncios estão ativos, a data de início de cada um, o texto
+e a oferta. Se a busca pelo nome não trouxer resultado, tente o domínio sem
+pontos (ex.: `casadasmadrinhasecia`). Faça a mesma busca para o próprio
+cliente, para comparar. Feche a aba no fim.
+
 ## Regras de todo leitor
 
 - Você busca números e fatos. Quem interpreta e decide é o orquestrador. Não
