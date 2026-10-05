@@ -1,7 +1,7 @@
 # Rotina de otimização semanal
 
 Método de otimização de Luis Andrade (eFashion Performance / Convertr), escrito em
-30/09/2026 e refinado com o uso real na conta da Ladydress. Vale para qualquer
+30/09/2026 e refinado com o uso numa conta real de moda. Vale para qualquer
 cliente de e-commerce. O que é específico de cada cliente (onde fica a planilha
 de metas, quais abas, quais contas) fica no `CONTEXTO.md` e no `cliente.json`
 dele.

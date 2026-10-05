@@ -1,7 +1,7 @@
 # Regras aprendidas no uso real
 
 Cada regra abaixo veio de um erro ou de uma correção do Luis na conta da
-Ladydress (setembro e outubro de 2026). Elas valem para todo cliente.
+uma conta real de moda (setembro e outubro de 2026). Elas valem para todo cliente.
 
 ## Meta é a da planilha
 

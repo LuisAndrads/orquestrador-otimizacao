@@ -1,6 +1,6 @@
 {
   "name": "convertr",
-  "owner": {"name": "Luis Andrade", "email": "luisandrade.cct@gmail.com"},
+  "owner": {"name": "Luis Andrade"},
   "plugins": [
     {
       "name": "orquestrador-otimizacao",

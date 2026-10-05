@@ -7,7 +7,7 @@ conversa, roda a otimização de segunda (obrigatória, contra a meta do mês) e
 de quinta (oportunidade), usando cinco agentes leitores, e entrega o diário de
 bordo para o gestor executar.
 
-Nasceu na conta da Ladydress em setembro e outubro de 2026 e foi generalizado
+Nasceu numa conta real de moda em setembro e outubro de 2026 e foi generalizado
 para qualquer cliente.
 
 ## O que vem dentro
@@ -32,7 +32,7 @@ No Claude Code:
 ```
 
 (Repositório: https://github.com/LuisAndrads/orquestrador-otimizacao.
-Repositório privado: peça acesso ao Luis antes.)
+Repositório público.)
 
 Requisitos:
 
@@ -71,4 +71,4 @@ Em qualquer conversa, numa pasta de trabalho onde os clientes ficam em
 
 ## Versão
 
-0.1.0 — primeira versão generalizada a partir da Ladydress (outubro de 2026).
+0.1.0 — primeira versão generalizada a partir de uma conta real (outubro de 2026).
