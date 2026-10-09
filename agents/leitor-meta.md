@@ -57,7 +57,8 @@ diagnóstico do catálogo.
   não use navegador.
 - Scripts permitidos por Bash, sempre com o Python do orquestrador
   (`~/.orquestrador-otimizacao/venv/bin/python`): `le_planilha.py`,
-  `pedidos.py` e `valida_urls.py`. Não rode outro comando, nem para fazer conta:
+  `pedidos.py`, `ga4.py` e `valida_urls.py`. GA4 sem MCP nesta máquina: use
+  `ga4.py` (mesma conta de serviço). Não rode outro comando, nem para fazer conta:
   faça a conta no texto e mostre a fórmula.
 - Antes de usar uma planilha, leia a hora da última atualização dela.
 - Escopo: responda o que foi perguntado. Se achar que precisa aprofundar além

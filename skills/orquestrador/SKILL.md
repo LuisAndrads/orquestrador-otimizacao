@@ -1,6 +1,6 @@
 ---
 name: orquestrador
-description: Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr) — cadastra um cliente novo, retoma o contexto de um cliente já cadastrado e roda a otimização semanal com agentes leitores (projeto, Meta, Google, funil, mercado), entregando o diário de bordo. Use sempre que alguém pedir para "ativar o orquestrador", "ativar o coordenador", "iniciar a otimização", "otimizar a conta", "fazer a análise da semana" ou "o diário de bordo" de um cliente (ex.: "ativar o orquestrador da Hocks", "vamos otimizar a Angelina", "coordenador da loja X"), para cadastrar um cliente no orquestrador, para registrar o que foi executado depois de uma rodada, ou quando a conversa começar com um pedido de análise de mídia paga de uma loja que tenha pasta em clientes/.
+description: Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr) — prepara o computador de quem vai usar (instala Python e guia Google Cloud, Meta e demais acessos), cadastra um cliente novo, retoma o contexto de um cliente já cadastrado e roda a otimização semanal com agentes leitores (projeto, Meta, Google, funil, mercado), entregando o diário de bordo. Use sempre que alguém pedir para "ativar o orquestrador", "ativar o coordenador", "iniciar a otimização", "otimizar a conta", "fazer a análise da semana" ou "o diário de bordo" de um cliente (ex.: "ativar o orquestrador da Hocks", "vamos otimizar a Angelina", "coordenador da loja X"), para cadastrar um cliente no orquestrador, para registrar o que foi executado depois de uma rodada, ou quando a conversa começar com um pedido de análise de mídia paga de uma loja que tenha pasta em clientes/.
 ---
 
 # Orquestrador de otimização
@@ -19,9 +19,10 @@ O plugin tem três partes, e você usa as três:
   prefixo do plugin (`orquestrador-otimizacao:leitor-meta`); use esse nome se
   houver outro agente com o mesmo nome na pasta de trabalho.
 - `scripts/` (na raiz do plugin, dois níveis acima desta pasta): leitura de
-  planilha (`le_planilha.py`), pedidos e UTM (`pedidos.py`) e páginas
-  (`valida_urls.py`), todos só leitura, rodados com
-  `~/.orquestrador-otimizacao/venv/bin/python` e sempre com
+  planilha (`le_planilha.py`), pedidos, UTM e, na plataforma Convertr, canais
+  (`pedidos.py`), GA4 sem MCP (`ga4.py`) e páginas (`valida_urls.py`), todos
+  só leitura, rodados com `~/.orquestrador-otimizacao/venv/bin/python` (no
+  Windows, `venv\Scripts\python.exe`) e sempre com
   `--cliente clientes/<cliente>/cliente.json`.
 
 ## 1. Descobrir o modo
@@ -32,6 +33,7 @@ lugar de espaço).
 
 | Situação | Modo |
 |---|---|
+| `~/.orquestrador-otimizacao/ambiente.json` não existe, ou a pessoa pediu para instalar ou configurar | `preparar` |
 | A pasta ou o `cliente.json` não existe | `cadastrar` |
 | Existe, e a pessoa só ativou ou pediu "o que temos" | `retomar` |
 | Pediu a otimização de segunda, a "obrigatória", ou é segunda-feira e pediu a rodada | `segunda` |
@@ -42,9 +44,20 @@ Na dúvida entre `segunda` e `quinta`, pergunte. Rodada completa custa caro em
 token (de 150 mil a 350 mil, conforme quantos leitores entram), então diga a
 estimativa antes de começar.
 
+## 1A. Modo `preparar`
+
+Siga `references/instalacao.md`: pré-auditoria do computador sem perguntar
+nada, uma autorização para instalar tudo o que der, questionário único,
+trilhas passo a passo (Google Cloud e chave, Meta, Clarity, Chrome),
+verificação e relatório da instalação. Problemas já vistos estão em
+`references/problemas-conhecidos.md`: consulte antes de improvisar uma
+solução. Termina com `ambiente.json` gravado e o convite para cadastrar o
+primeiro cliente.
+
 ## 2. Modo `cadastrar`
 
-Siga `references/cadastro.md`. Em resumo: entrevista de uma pergunta por vez,
+Siga `references/cadastro.md`. Em resumo: questionário único (a plataforma da
+loja primeiro, porque a Convertr tem caminho próprio de pedidos),
 cópia de `assets/cliente/` para `clientes/<cliente>/`, preenchimento do
 `cliente.json` e do `CONTEXTO.md`, teste real de cada fonte, travas de
 copiloto nas configurações do Claude Code e registro em `geral/DECISOES.md`.

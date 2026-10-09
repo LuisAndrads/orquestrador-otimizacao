@@ -14,7 +14,7 @@ para qualquer cliente.
 
 | Peça | O que faz |
 |---|---|
-| `skills/orquestrador/` | A porta de entrada. Modos: `cadastrar`, `retomar`, `segunda`, `quinta`, `registrar` |
+| `skills/orquestrador/` | A porta de entrada. Modos: `preparar`, `cadastrar`, `retomar`, `segunda`, `quinta`, `registrar` |
 | `skills/orquestrador/references/metodo.md` | O método: norte, métricas secundárias, ordem da análise, segunda e quinta, critérios da varredura, gatilhos, diário |
 | `skills/orquestrador/references/regras.md` | Regras aprendidas no uso real: três réguas, jornada antes de pausar, estado de hoje, estrutura da Shopping, recomendação externa, token |
 | `skills/orquestrador/references/cadastro.md` | Roteiro de cadastro de cliente |
@@ -24,34 +24,41 @@ para qualquer cliente.
 
 ## Instalar
 
-No Claude Code:
+Passo a passo para quem nunca usou o Claude Code: **[INSTALAR.md](INSTALAR.md)**.
+Em resumo: abra a aba Code do app do Claude com uma pasta `Convertr`, cole o
+link deste repositório e peça "instala isso para mim". O Claude audita o
+computador, instala o que dá e guia o resto.
+
+Quem já usa o Claude Code pode instalar direto, um comando por vez:
 
 ```
 /plugin marketplace add LuisAndrads/orquestrador-otimizacao
+```
+```
 /plugin install orquestrador-otimizacao@convertr
 ```
 
-(Repositório: https://github.com/LuisAndrads/orquestrador-otimizacao.
-Repositório público.)
-
-Requisitos:
+Requisitos (o modo `preparar` confere e instala):
 
 1. **Python 3** no computador. O cadastro cria o ambiente dos scripts em
    `~/.orquestrador-otimizacao/venv`.
 2. **Conta de serviço do Google** com acesso de leitor às planilhas do cliente
    (planilha de metas e base de pedidos).
-3. **MCPs** de leitura ligadas no Claude Code, conforme o que cada pessoa tem:
-   Meta Ads, Google Ads, GA4, Merchant Center, Clarity. Fonte sem MCP vira
-   "sem acesso" e a análise segue com o resto.
+3. **Conector do Meta** no Claude (Configurações → Conectores). GA4 e
+   planilhas são lidos pelos scripts com a conta de serviço, sem MCP. Google
+   Ads, Merchant e Clarity são opcionais: fonte sem acesso vira "sem acesso" e
+   a análise segue com o resto.
 4. Para a régua da loja, a **Base de Dados de pedidos** do cliente (planilha
-   alimentada pela plataforma: Nuvemshop, Tray, Shopify, VTEX ou outra). O
-   mapa de colunas fica no `cliente.json`.
+   alimentada pela plataforma: Nuvemshop, Tray, Shopify, VTEX ou outra; o mapa
+   de colunas fica no `cliente.json`). **Plataforma Convertr:** não há base por
+   pedido; os pedidos vêm da aba `dados_bq` da PDA 13.0.
 
 ## Usar
 
 Em qualquer conversa, numa pasta de trabalho onde os clientes ficam em
 `clientes/<cliente>/`:
 
+- "Preparar o computador" — audita e instala o que falta (primeira vez).
 - "Ativar o orquestrador da Hocks" — cadastra, se for a primeira vez; retoma,
   se já existir.
 - "Rodar a otimização de segunda da Hocks" / "rodada de quinta da Hocks".
@@ -71,4 +78,6 @@ Em qualquer conversa, numa pasta de trabalho onde os clientes ficam em
 
 ## Versão
 
+0.2.0 — instalação guiada para leigos (modo `preparar`), plataforma Convertr
+(`dados_bq`), GA4 sem MCP (`ga4.py`) (outubro de 2026).
 0.1.0 — primeira versão generalizada a partir de uma conta real (outubro de 2026).

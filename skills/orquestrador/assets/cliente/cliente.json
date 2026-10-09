@@ -2,7 +2,7 @@
   "cliente": "nome-da-pasta",
   "nome": "Nome da Loja",
   "site": "https://www.loja.com.br",
-  "plataforma": "nuvemshop | tray | shopify | vtex | outra",
+  "plataforma": "convertr | nuvemshop | tray | shopify | vtex | outra",
   "fuso": "-03:00",
   "credencial_google": "",
   "planilhas": {
@@ -17,6 +17,8 @@
       }
     },
     "base_pedidos": {
+      "_convertr": "plataforma Convertr: troque este bloco por {\"tipo\": \"dados_bq\", \"id\": \"\", \"aba\": \"dados_bq\"} (id vazio = a própria PDA 13.0)",
+      "tipo": "base",
       "id": "",
       "aba": "Banco de Dados - Claude",
       "colunas": {
