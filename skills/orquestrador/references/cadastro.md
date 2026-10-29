@@ -41,7 +41,10 @@ variável.
    - Modelo 13.0 (padrão eFashion/Convertr): peça só o ID da planilha. As metas
      ficam na aba `Visão Geral`, linhas 5 a 22, uma coluna por mês (C = jan …
      N = dez); o realizado a partir da linha 24; meta e realizado por canal na
-     aba `Acom. Canais`; hora da atualização em `configs!B5`.
+     aba `Acom. Canais`; hora da atualização em `configs!B5`. Em algumas PDAs
+     essa célula está vazia ou nem existe (a aba `configs` tem só três
+     linhas). Nesse caso, a referência de atualização é o dia mais recente da
+     `dados_bq`: grave isso no `CONTEXTO.md`, sem marcar a planilha como erro.
    - Outro modelo: pergunte em que aba e linha (ou célula) está cada meta:
      faturamento faturado e captado, ROAS faturado, investimento, sessões, CPS,
      taxa de conversão, ticket médio, taxa de aprovação. Grave no `cliente.json`
@@ -65,14 +68,24 @@ variável.
    ["Cancelado", "Pendente", "Reembols"]}`.
 5. **Contas e IDs:** conta de anúncios do Meta, conta do Google Ads (e a MCC
    pela qual ela é acessada), propriedade do GA4, Merchant Center, Clarity.
+   Não confie só no que a pessoa disser:
+   - **Meta:** a lista de contas vem em páginas de 50. Percorra todas as
+     páginas, até não haver cursor, e procure o nome da loja, a razão social e
+     o nome do BM. Conta parecida que não é do cliente fica registrada com o
+     motivo, para a auditoria não perguntar de novo.
+   - **Google Ads:** na MCC, procure nomes parecidos. Na dúvida, confira para
+     qual site levam os anúncios da conta.
+   - **Merchant Center:** se a pessoa não souber o ID, ele aparece no
+     `shopping_setting.merchant_id` da campanha de Shopping ou PMax.
 6. **Concorrentes:** de três a cinco lojas, com site e Instagram.
 7. **Fuso** (padrão: Brasília, -03:00) e **o mês ou trimestre** da meta.
 
 ## 2A. Plataforma Convertr (Convertr Commerce)
 
-Não existe base com um pedido por linha nem UTM. Os pedidos vêm da aba
-`dados_bq` da própria PDA 13.0 ("Dashboard de Acompanhamento Diário"), que é a
-mesma planilha das metas.
+A régua do dia a dia vem da aba `dados_bq` da própria PDA 13.0 ("Dashboard de
+Acompanhamento Diário"), que é a mesma planilha das metas. Ela traz o total
+do dia, sem um pedido por linha e sem UTM. O pedido a pedido com UTM existe na
+exportação do painel da loja (item 7).
 
 1. Peça só o ID da PDA 13.0. O `store_id` da loja está em `Visão Geral!B1` e
    em `configs!B1`: leia e grave no `CONTEXTO.md`.
@@ -107,12 +120,27 @@ mesma planilha das metas.
    - Não usar a aba `bq_geral` (ligada ao BigQuery, a leitura comum dá
      "Unable to parse range" e não traz nada a mais) nem "Pedidos
      Plataforma" (parou antes da migração).
-   - Não há pedido a pedido nem UTM para o gestor (o detalhe está num
-     projeto do BigQuery da Convertr sem acesso). Régua da loja = total do dia;
-     divisão por canal = a do GA4 (`pedidos.py canais`); atribuição de pedido
-     por canal: "indisponível nesta plataforma", sem estimar. Análise por pedido
-     (cancelamento por região, recompra por cliente) só com exportação manual
-     pontual pedida ao gestor.
+   - A `dados_bq` não tem pedido a pedido nem UTM. Na rodada semanal, a
+     régua da loja é o total do dia e a divisão por canal é a do GA4
+     (`pedidos.py canais`). Pedido por canal e análise por pedido saem da
+     exportação do painel (item 7), quando houver uma do período; sem ela,
+     "sem exportação do painel para o período", sem estimar.
+7. **Exportação do painel.** Peça ao gestor as três exportações do painel
+   Convertr Commerce: pedidos, clientes e produtos com estoque. Elas são
+   obrigatórias na auditoria inicial e opcionais nas rodadas.
+   - O arquivo de pedidos tem uma linha por item, com status, pagamento,
+     cupom, frete, estado, histórico de status e, no campo `additional`, as
+     UTMs gravadas no pedido (`utm_source`, `utm_medium`, `utm_campaign`,
+     `utm_content`, `utm_term`, `utm_id`). Isso dá a terceira régua do método
+     (pedidos com a UTM da campanha) também nas lojas Convertr.
+   - Antes de usar, confira o faturado mês a mês contra a `dados_bq` e tire os
+     pedidos de teste da equipe (produto ou cliente de teste). Se não bater,
+     registre a diferença e não use o arquivo.
+   - **Dado pessoal.** Os três arquivos têm nome, CPF e endereço de consumidor
+     final. Ficam numa pasta temporária fora do repositório, nunca no git nem
+     na pasta do cliente. Os documentos levam só números somados.
+   - A exportação vale para o período em que foi tirada. Para uma leitura
+     nova, peça uma exportação nova.
 
 ## 3. Criar a pasta
 
@@ -125,6 +153,41 @@ Copie `assets/cliente/` para `clientes/<cliente>/` e preencha:
 
 O cadastro é a exceção à regra de que só o modo `registrar` escreve em
 `DECISOES.md` e `ABERTO.md`: ele cria esses arquivos e faz a primeira entrada.
+
+## 3A. Exportações para o BigQuery (antes da auditoria inicial)
+
+As ferramentas de GA4, Google Ads e Merchant devolvem poucas linhas por
+consulta e não filtram evento. Com os dados no BigQuery, uma consulta pequena
+traz caminho de conversão, primeira origem de cada compra e o funil inteiro,
+gastando muito menos token que os leitores. Por isso as quatro exportações
+são ligadas no cadastro, antes da auditoria inicial, e não depois.
+
+| Exportação | Onde se liga | Nome do conjunto de dados |
+|---|---|---|
+| GA4 | Administrador do GA4 → Vinculações do BigQuery, exportação diária | automático: `analytics_<id da propriedade>` |
+| Google Ads | BigQuery → Transferências de dados → Google Ads | `ads_<cliente>` |
+| Merchant Center | BigQuery → Transferências de dados → Google Merchant Center | `merchant_<cliente>` |
+| Search Console | Search Console → Configurações → Exportação em massa (exige ser proprietário da propriedade) | `searchconsole_<cliente>` |
+
+`<cliente>` é o nome da pasta do cliente, sem hífen. O projeto é o do Google
+Cloud do ambiente (`ambiente.json`).
+
+1. Ligar cada exportação muda configuração nas contas e exige login de
+   administrador: quem liga é a pessoa, com o passo a passo acima. O Claude
+   não liga nada.
+2. **A exportação começa no dia em que é ligada.** GA4, Merchant e Search
+   Console não trazem o passado; o Google Ads aceita pedir dias anteriores
+   (preenchimento retroativo). Grave no `CONTEXTO.md` a data de início de cada
+   uma: antes dela, a resposta é "sem dado no BigQuery", e um buraco no meio
+   (exportação que parou e voltou) também fica escrito com as datas.
+3. Grave os nomes dos conjuntos em `bigquery` do `cliente.json`.
+4. Teste cada conjunto com uma consulta pequena (uma tabela, um dia, poucas
+   colunas) e ponha o resultado na tabela "Fontes". Conjunto que ainda não
+   recebeu o primeiro dia fica "ligado, aguardando o primeiro dia".
+5. **Na auditoria inicial, o BigQuery vem primeiro:** consulte o que ele
+   cobre e chame os leitores só para o que ele não cobre (estrutura das
+   contas, criativos, histórico de alterações, concorrentes). A regra de
+   parar e perguntar antes de consulta que cobre continua valendo.
 
 ## 4. Testar cada fonte
 
@@ -140,6 +203,16 @@ Para cada fonte, uma leitura real e curta, e o resultado na tabela "Fontes" do
 | GA4 | MCP do GA4, ou, sem MCP, `ga4.py --cliente <json> <ontem> <ontem> --metricas sessions` |
 | Merchant Center | resumo de problemas dos produtos |
 | Clarity | dashboard de ontem |
+| BigQuery | uma consulta pequena em cada conjunto da seção 3A |
+| Exportação do painel (Convertr) | faturado mês a mês do arquivo contra a `dados_bq` (seção 2A, item 7) |
+
+**Clarity com mais de um cliente.** O conector oficial guarda um token só, ou
+seja, um projeto. Para cada cliente, crie uma conexão própria
+(`clarity-<cliente>`) que leia o token de um arquivo fora do git, com
+permissão só do dono (`chmod 600`), e abra esse arquivo para a pessoa colar o
+token; nunca peça o token no chat. A conexão nova só aparece numa conversa
+aberta depois de criada; no mesmo dia, teste pela API direto. Projeto criado
+no cadastro só tem dado a partir daquele dia: registre a data.
 
 Fonte sem MCP ligado nesta máquina: "sem acesso nesta máquina". Fonte com MCP
 que devolve erro: "erro" e a mensagem. Nenhum dos dois bloqueia o cadastro; o
@@ -166,7 +239,9 @@ e não só em instrução:
    rodada não parar pedindo permissão:
    `Bash(<home>/.orquestrador-otimizacao/venv/bin/python <raiz do plugin>/scripts/*)`,
    com os dois caminhos absolutos e expandidos (espaço no caminho é aceito)
-   e `Write(clientes/<cliente>/otimizacoes/**)`.
+   e `Write(clientes/<cliente>/otimizacoes/**)`. Acrescente também
+   `Bash(jq *)`: resposta grande de MCP é salva em arquivo, e os leitores
+   precisam filtrar e contar esse arquivo sem pedir permissão.
 
 ## 6. Registro
 

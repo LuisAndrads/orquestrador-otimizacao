@@ -10,7 +10,7 @@
       "id": "",
       "modelo": "13.0 | personalizado | nenhum",
       "celulas": {
-        "atualizacao": "configs!B5",
+        "atualizacao": "configs!B5 (se vazia ou inexistente: o dia mais recente da dados_bq)",
         "metas_do_mes": "Visão Geral!B5:N22",
         "realizado_do_mes": "Visão Geral!B24:N45",
         "canais": "Acom. Canais!A2:AC40"
@@ -46,7 +46,15 @@
     "google_ads_mcc": "",
     "ga4": "",
     "merchant_center": "",
-    "clarity": ""
+    "clarity": "",
+    "search_console": ""
+  },
+  "bigquery": {
+    "_uso": "conjuntos de dados das exportações (cadastro, seção 3A); a data de início de cada uma fica no CONTEXTO.md",
+    "ga4": "analytics_<id da propriedade>",
+    "google_ads": "ads_<cliente>",
+    "merchant": "merchant_<cliente>",
+    "search_console": "searchconsole_<cliente>"
   },
   "concorrentes": [
     {

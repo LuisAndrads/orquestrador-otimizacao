@@ -62,7 +62,15 @@ cópia de `assets/cliente/` para `clientes/<cliente>/`, preenchimento do
 `cliente.json` e do `CONTEXTO.md`, teste real de cada fonte, travas de
 copiloto nas configurações do Claude Code e registro em `geral/DECISOES.md`.
 O cadastro só termina quando a pessoa vê um teste de leitura de cada fonte
-funcionando ou marcado como "sem acesso".
+funcionando ou marcado como "sem acesso". Antes da auditoria inicial, as
+exportações para o BigQuery ficam ligadas (`cadastro.md`, seção 3A) e, em loja
+Convertr, as exportações do painel pedidas (seção 2A, item 7).
+
+**Auditoria inicial (seis meses).** Custa de 1 a 1,5 milhão de tokens, bem
+mais que uma rodada: diga isso antes. Para não estourar o limite de uso:
+consulte o BigQuery primeiro; rode no máximo dois leitores ao mesmo tempo;
+dê a cada leitor um arquivo de retorno; e não repita na conversa principal
+as consultas que já pediu aos leitores.
 
 ## 3. Modo `retomar`
 

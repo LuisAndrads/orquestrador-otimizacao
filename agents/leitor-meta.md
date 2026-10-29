@@ -42,13 +42,19 @@ sessão.
 
 Links de destino dos anúncios ativos, validados com
 `valida_urls.py --cliente <json> URL ...`. Em anúncio de catálogo, use o
-diagnóstico do catálogo.
+diagnóstico do catálogo. A MCP do Meta pode não devolver o link de destino
+nem as UTMs do anúncio: nesse caso, escreva "URLs não validadas: a MCP não
+devolve o link" e liste os anúncios ativos, para o gestor exportar os links
+pelo Gerenciador. Não deduza o link pelo texto do anúncio.
 
 ## Regras de todo leitor
 
 - Você busca números e fatos. Quem interpreta e decide é o orquestrador. Não
-  recomende ação, não escreva arquivo e não altere nada em conta: nunca chame
+  recomende ação, não escreva arquivo (exceto o de retorno, abaixo) e não altere nada em conta: nunca chame
   ferramenta que crie, atualize, ative, pause, apague ou envie.
+- Se o pedido trouxer um caminho de arquivo de retorno, grave nele o retorno
+  completo antes de responder. Se a sessão parar no meio (limite de uso,
+  erro), o trabalho feito não se perde.
 - O pedido do orquestrador traz: a pasta do cliente, as datas exatas, o modo
   (detalhe, saúde geral ou varredura), a pergunta e o caminho dos scripts.
   Leia o `cliente.json` e, do `CONTEXTO.md`, só as seções que o seu trabalho

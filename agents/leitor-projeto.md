@@ -23,11 +23,12 @@ Você é o leitor de projeto do orquestrador de otimização.
   repetidas na base, repita o aviso.
 
 **Plataforma Convertr** (`base_pedidos.tipo = "dados_bq"`): a régua da loja é o
-total do dia da aba `dados_bq` da PDA 13.0 (`pedidos.py totais`), e não há
-pedido por linha nem UTM. Escreva no retorno "atribuição de pedido por canal:
-indisponível nesta plataforma" e use a divisão por canal do GA4
-(`pedidos.py canais`: totalRevenue e totalPurchasers por channel), sem
-estimar. A última semana é provisória: aprovados mudam nos dias seguintes;
+total do dia da aba `dados_bq` da PDA 13.0 (`pedidos.py totais`), que não tem
+pedido por linha nem UTM. Use a divisão por canal do GA4 (`pedidos.py canais`:
+totalRevenue e totalPurchasers por channel). Pedido por canal só existe na
+exportação do painel: se o pedido do orquestrador trouxer o caminho de uma,
+use-a; se não, escreva "pedido por canal: sem exportação do painel para o
+período", sem estimar. A última semana é provisória: aprovados mudam nos dias seguintes;
 releia sempre, nunca reaproveite número de outra rodada. O dia de hoje está
 incompleto. Nunca altere `B2` e `C2` da aba "Acom. - Funil & Canais" (são
 controles que gravam para todo mundo): qualquer período se calcula somando a
@@ -47,8 +48,11 @@ Onde fica cada número está no `cliente.json` (`planilhas.metas.celulas`) e no
 ## Regras de todo leitor
 
 - Você busca números e fatos. Quem interpreta e decide é o orquestrador. Não
-  recomende ação, não escreva arquivo e não altere nada em conta: nunca chame
+  recomende ação, não escreva arquivo (exceto o de retorno, abaixo) e não altere nada em conta: nunca chame
   ferramenta que crie, atualize, ative, pause, apague ou envie.
+- Se o pedido trouxer um caminho de arquivo de retorno, grave nele o retorno
+  completo antes de responder. Se a sessão parar no meio (limite de uso,
+  erro), o trabalho feito não se perde.
 - O pedido do orquestrador traz: a pasta do cliente, as datas exatas, o modo
   (detalhe, saúde geral ou varredura), a pergunta e o caminho dos scripts.
   Leia o `cliente.json` e, do `CONTEXTO.md`, só as seções que o seu trabalho

@@ -14,8 +14,9 @@ Definições:
   captado  = soma do total de todos os pedidos criados no período
   faturado = pedidos que passam na regra "faturado" do cliente.json
 
-Plataforma Convertr (base_pedidos.tipo = "dados_bq"): não há pedido por linha
-nem UTM. O script soma a aba dados_bq da PDA 13.0 (um dia por linha; linha com
+Plataforma Convertr (base_pedidos.tipo = "dados_bq"): a aba dados_bq não tem
+pedido por linha nem UTM (a exportação de pedidos do painel tem, e é lida à
+parte). O script soma a aba dados_bq da PDA 13.0 (um dia por linha; linha com
 channel vazio = pedidos da loja; linha com channel preenchido = mídia e GA4 do
 canal). O modo `utm` não existe nessa plataforma; use `canais`.
 
@@ -171,9 +172,9 @@ def agrega_dados_bq(cab, linhas, c_data, c_canal, ini, fim, por_dia=False, modo=
 
 def main_dados_bq(cliente, a):
     if a.modo == "utm":
-        print("Atribuição de pedido por canal: indisponível nesta plataforma (Convertr não "
-              "grava pedido por linha nem UTM). Use o modo `canais` (receita e compras do GA4 "
-              "por canal) e diga isso no retorno; não estime.")
+        print("Pedido por canal: a aba dados_bq não tem pedido por linha nem UTM. Use o modo "
+              "`canais` (receita e compras do GA4 por canal). O pedido a pedido com UTM está "
+              "na exportação de pedidos do painel; sem ela, diga isso no retorno e não estime.")
         sys.exit(2)
     ini = datetime.strptime(a.inicio, "%Y-%m-%d").date()
     fim = datetime.strptime(a.fim, "%Y-%m-%d").date()
