@@ -32,15 +32,24 @@ Windows no PowerShell.
 | Google Ads por MCP | ferramentas `google-ads` ou `gads_` | idem | não |
 | Clarity | ferramentas `Clarity` | idem | não |
 | Claude in Chrome | ferramentas `claude-in-chrome` | idem | não |
-| Google Cloud no computador (BigQuery) | `gcloud --version; bq version; gcloud auth list` | idem | para a auditoria inicial |
+| Google Cloud no computador | `gcloud --version; bq version` | `gcloud --version; bq version` (num PowerShell aberto depois da instalação) | sim |
+| Login no Google Cloud | `gcloud auth list` (uma conta com `*`) | idem | sim |
+| Acesso ao projeto da Convertr | `bq ls --project_id=<projeto>` sem erro | idem | sim |
 
 No Mac, `python3 --version` sem as ferramentas de linha de comando abre uma
 janela pedindo para instalá-las: isso é esperado e vira item da etapa 2.
 
 Não são necessários: GitHub, Git, MCP do Google Sheets nem MCP do Google
 Drive. As planilhas e o GA4 são lidos pelos scripts do plugin com a chave da
-conta de serviço. O Google Cloud no computador (`gcloud` e `bq`) só é preciso
-para ligar as exportações do BigQuery antes da auditoria inicial (trilha F).
+conta de serviço. O Google Cloud no computador (`gcloud` e `bq`) cria essa
+chave e consulta o BigQuery.
+
+**Como o Google Cloud é organizado.** Existe um projeto do Google Cloud da
+Convertr, com faturamento ativo, onde ficam todas as exportações para o
+BigQuery. Quem cuida dele (o dono do projeto) segue a trilha F. Cada pessoa
+que usa o plugin recebe ali uma conta de serviço só dela (`orq-<nome>`) e não
+cria projeto, não paga nada e não cadastra cartão. Sem o ID do projeto,
+pergunte à pessoa quem é o coordenador dela e peça o ID a ele.
 
 Mostre a tabela com ✅, ❌ e "opcional", e diga em uma frase o que falta.
 
@@ -60,7 +69,19 @@ Liste numa única mensagem o que você vai fazer e peça um "sim":
 3. Criar o ambiente dos scripts e instalar as bibliotecas:
    `python3 -m venv ~/.orquestrador-otimizacao/venv` e
    `<venv python> -m pip install -r <raiz do plugin>/scripts/requirements.txt`.
-4. Gravar em `Convertr/.claude/settings.json` o plugin e as permissões de
+4. Instalar o Google Cloud CLI, que traz os comandos `gcloud` e `bq`:
+   - Mac com Homebrew (`brew --version` responde):
+     `brew install --cask google-cloud-sdk`.
+   - Mac sem Homebrew: o instalador oficial do Google,
+     `curl -sSL https://sdk.cloud.google.com | bash -s -- --disable-prompts --install-dir="$HOME"`,
+     e depois acrescentar ao `~/.zshrc` a linha
+     `source "$HOME/google-cloud-sdk/path.zsh.inc"`. Enquanto o Claude não for
+     reaberto, use o caminho completo `$HOME/google-cloud-sdk/bin/gcloud`.
+   - Windows: `winget install -e --id Google.CloudSDK`. Depois, fechar e abrir
+     o Claude.
+   - Conferência, nos dois: `gcloud --version` e `bq version` respondem com o
+     número da versão.
+5. Gravar em `Convertr/.claude/settings.json` o plugin e as permissões de
    leitura (assim a rodada não para pedindo autorização):
    ```json
    {
@@ -87,20 +108,22 @@ Com o "sim", faça tudo e teste de novo os itens da etapa 1.
 Mande todas as perguntas numa só mensagem, numeradas, com as opções. A pessoa
 responde o que souber; depois pergunte só o que faltou.
 
-1. Qual e-mail você vai usar no Google Cloud: um Gmail pessoal ou o e-mail da
-   Convertr? (Recomendado: o mesmo e-mail que tem acesso às planilhas e ao GA4
-   dos clientes. Se for e-mail de empresa e o Google bloquear a criação da
-   chave, usamos o Gmail.)
-2. Você já entrou alguma vez em console.cloud.google.com? Já tem um projeto
-   lá?
+1. Qual e-mail do Google você vai usar? (Recomendado: o mesmo que tem acesso
+   às planilhas e ao GA4 dos clientes.)
+2. O seu coordenador já te deu o ID do projeto da Convertr no Google Cloud e
+   avisou que criou a sua conta de serviço? (Se não, mande a ele o seu nome e
+   o e-mail da pergunta 1: ele segue a trilha F, item 2.)
 3. Você já tem um arquivo de chave JSON de "conta de serviço"? Se sim, onde
    ele está?
 4. Você abre o Gerenciador de Anúncios do Meta dos seus clientes com o seu
    Facebook? Em quais portfólios (Business Managers)?
-5. Por qual MCC você acessa o Google Ads dos clientes (eFashion, Convertr ou
-   direto na conta)?
-6. Você é administrador ou editor do GA4 dos seus clientes? (É preciso para
-   dar acesso de leitura à conta de serviço.)
+5. No Google Ads, você é administrador da MCC, administrador da conta do
+   cliente, ou tem acesso só à conta, sem ser administrador? (Quem não é
+   administrador pede ao coordenador para dar o acesso do item 1 do cadastro,
+   seção 3A.)
+6. No GA4 dos seus clientes, qual é o seu papel: administrador, editor ou
+   leitor? (Só o administrador consegue dar acesso de leitura à conta de
+   serviço.)
 7. Os seus clientes têm Microsoft Clarity? Você tem acesso a ele?
 8. Você usa o Google Chrome? Quer a extensão do Claude no Chrome (opcional)?
 9. Quais clientes você quer cadastrar primeiro, e qual a plataforma da loja de
@@ -111,53 +134,69 @@ responde o que souber; depois pergunte só o que faltou.
 ## Etapa 4. Trilhas, uma de cada vez
 
 Siga só as trilhas do que falta, nesta ordem. Mande um passo, espere a pessoa
-dizer "feito" (ou mandar um print), confira e mande o próximo.
+dizer "feito" (ou mandar um print), confira e mande o próximo. A trilha F é só
+para o dono do projeto da Convertr; a pessoa comum não passa por ela.
 
-### Trilha A. Google Cloud, conta de serviço e chave (obrigatória)
+### Trilha A. Google Cloud: login e chave da conta de serviço (obrigatória)
 
-1. Abrir https://console.cloud.google.com e entrar com o e-mail da pergunta 1.
-   Aceitar os termos e escolher o país Brasil.
-2. **Faturamento.** Para o que o plugin usa (planilhas e GA4), não é preciso
-   ativar faturamento nem o teste gratuito: pode fechar o aviso de "US$ 300
-   grátis". Se o Google bloquear algum passo exigindo conta de faturamento, aí
-   sim: o teste gratuito dá US$ 300 por 90 dias, pede cartão e pode pedir um
-   pré-pagamento pequeno, que fica como crédito (caso visto em 05/10/2026). O
-   uso do plugin custa centavos. Depois de cadastrar o cartão, criar um alerta
-   de orçamento (Faturamento → Orçamentos e alertas → R$ 20).
-3. **Projeto.** No topo da tela, clicar no seletor de projeto → **Novo
-   projeto** → nome `orquestrador-<seunome>` → **Criar**. Esperar e
-   selecionar o projeto no seletor.
-4. **Ativar as APIs.** Abrir cada link com o projeto selecionado e clicar em
-   **Ativar**:
-   - https://console.cloud.google.com/apis/library/sheets.googleapis.com
-   - https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com
-5. **Conta de serviço.** Menu ☰ → **IAM e administrador** → **Contas de
-   serviço** → **Criar conta de serviço** → nome `orquestrador` → **Criar e
-   continuar** → pular as permissões → **Concluir**.
-6. **Chave.** Clicar na conta criada → aba **Chaves** → **Adicionar chave** →
-   **Criar nova chave** → **JSON** → **Criar**. O navegador baixa um arquivo
-   `.json`.
-   - Erro "a criação de chaves de conta de serviço está desativada": é uma
-     política de e-mail de empresa. Refazer as etapas 1 a 6 com o Gmail
-     pessoal.
-7. **Guardar a chave** (você faz): procurar em Downloads o `.json` mais novo
-   com `"type": "service_account"`, mover para
-   `~/.orquestrador-otimizacao/chave-google.json` e restringir a leitura
-   (`chmod 600` no Mac). Nunca deixar em pasta sincronizada (iCloud, OneDrive,
-   Google Drive) nem dentro de `Convertr/`. Mostre só o e-mail da conta de
-   serviço, lido com
+Antes, a pessoa precisa de duas coisas do coordenador (pergunta 2 do
+questionário): o ID do projeto da Convertr e o aviso de que a conta de
+serviço `orq-<nome>` dela já existe (trilha F, item 2). Sem isso, siga as
+outras trilhas e volte aqui depois. O Google Cloud CLI já foi instalado na
+etapa 2.
+
+1. **Login.** `gcloud auth login` abre o navegador: a pessoa entra com o
+   e-mail da pergunta 1 e clica em **Permitir**. Depois,
+   `gcloud config set project <projeto>`. Não há cartão nem faturamento a
+   cadastrar: quem paga é o projeto da Convertr.
+2. **Conferir o acesso:** `bq ls --project_id=<projeto>` lista os conjuntos
+   sem erro. Erro de permissão: o coordenador não terminou a trilha F, item 2.
+3. **Criar a chave** (você roda). Ela vai direto para o lugar certo, sem passar
+   por Downloads:
+   - Mac: `gcloud iam service-accounts keys create ~/.orquestrador-otimizacao/chave-google.json --iam-account=orq-<nome>@<projeto>.iam.gserviceaccount.com`
+     e depois `chmod 600 ~/.orquestrador-otimizacao/chave-google.json`.
+   - Windows (PowerShell): o mesmo comando, com o arquivo em
+     `$HOME\.orquestrador-otimizacao\chave-google.json`.
+   - Erro de permissão ("permission denied", "does not have permission"): o
+     coordenador ainda não deu à pessoa o direito de criar a chave (trilha F,
+     item 2c).
+   - Erro "a criação de chaves de conta de serviço está desativada" ("key
+     creation is disabled"): é uma regra da organização dona do projeto. Quem
+     resolve é o dono do projeto; trocar o e-mail da pessoa não adianta.
+   - A chave nunca fica em pasta sincronizada (iCloud, OneDrive, Google Drive)
+     nem dentro de `Convertr/`.
+4. Mostre só o e-mail da conta de serviço, lido com
    `<venv python> -c "import json;print(json.load(open('<chave>'))['client_email'])"`.
    Nunca mostre o resto do arquivo.
-8. **Dar acesso** (por cliente, durante o cadastro): o e-mail da conta de
-   serviço entra como
-   - **Leitor** em cada planilha (PDA 13.0 e base de pedidos): botão
-     **Compartilhar** → colar o e-mail → **Leitor** → desmarcar "Notificar" →
-     **Compartilhar**;
-   - **Leitor** no GA4: **Administrador** → **Gerenciamento de acesso à
-     propriedade** → **+** → **Adicionar usuários** → colar o e-mail → papel
-     **Leitor** → **Adicionar**.
-9. **Teste:** `le_planilha.py --planilha <id da PDA> "configs!A1:B5"` e
+5. **Dar acesso por cliente** acontece no cadastro de cada cliente
+   (`cadastro.md`, seção 3A, item 1): lá está em que papel cada e-mail entra
+   em cada ferramenta e quem consegue adicionar.
+6. **Teste** (depois do primeiro cadastro):
+   `le_planilha.py --planilha <id da PDA> "configs!A1:B5"` e
    `ga4.py --cliente <json> <ontem> <ontem> --metricas sessions`.
+
+**Sem acesso ao projeto da Convertr (provisório).** Se a pessoa precisa
+começar antes de o coordenador liberar o acesso, ela pode criar um projeto só
+dela. Explique o que isso dá e o que não dá antes de começar:
+
+- Em https://console.cloud.google.com: aceitar os termos, seletor de projeto →
+  **Novo projeto** → `orquestrador-<seunome>` → **Criar**. Ativar, com o
+  projeto selecionado, as APIs
+  https://console.cloud.google.com/apis/library/sheets.googleapis.com e
+  https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com.
+  Criar a conta de serviço em ☰ → **IAM e administrador** → **Contas de
+  serviço** → **Criar conta de serviço**, e a chave com o comando do item 3
+  (com o projeto e a conta novos).
+- Sem cartão, o projeto funciona no modo gratuito do BigQuery (o Google chama
+  de "sandbox"). Planilhas e GA4 pelos scripts funcionam normalmente. No
+  BigQuery, porém, cada tabela se apaga sozinha 60 dias depois de criada, o
+  espaço é de 10 GB para a vida inteira do projeto, e não rodam as
+  transferências de Google Ads e Merchant nem a exportação do Search Console.
+- Ativar o faturamento pede cartão e é decisão da pessoa (regra desta etapa).
+  Quando a tela pedir, explique e deixe ela decidir.
+- Nunca ligue as exportações de um cliente num projeto provisório. O GA4
+  aceita um vínculo com o BigQuery só (em 29/10/2026, com um vínculo feito, o
+  botão **Vincular** ficou desligado), e trocar depois perde a continuidade.
 
 ### Trilha B. Meta Ads (obrigatória)
 
@@ -195,28 +234,57 @@ Instalar a extensão **Claude** na Chrome Web Store, entrar com a mesma conta
 do Claude e fixar o ícone. Serve para ler a Biblioteca de Anúncios do Meta e
 a interface do Google Ads quando a ferramenta não traz o dado.
 
-### Trilha F. BigQuery no computador (para a auditoria inicial)
+### Trilha F. Projeto da Convertr (só quem cuida do projeto)
 
-Uma vez por pessoa e computador. Sem ela, as rodadas funcionam, mas a
-auditoria inicial lê tudo pelos leitores, custa mais e não tem caminho de
-conversão.
+Quem segue esta trilha é o dono do projeto da Convertr. A pessoa comum pula.
+Todos os comandos mudam permissão ou configuração do projeto: mostre cada um e
+espere o "ok" antes de rodar. `<projeto>` é o ID do projeto; `<nome>` é o nome
+da pessoa em minúsculas, sem acento nem espaço; `<email>` é o e-mail do Google
+dela.
 
-1. Instalar o Google Cloud CLI, que traz `gcloud` e `bq`: no Mac,
-   `brew install --cask google-cloud-sdk`; no Windows, o instalador de
-   https://cloud.google.com/sdk/docs/install.
-2. Login com a conta do Google que administra o projeto: `gcloud auth login`
-   (abre o navegador). Depois, `gcloud config set project <projeto>`.
-3. Ativar a API de transferências:
-   https://console.cloud.google.com/apis/library/bigquerydatatransfer.googleapis.com
-4. Conferir as permissões da pessoa no projeto: precisa poder criar conjunto
-   de dados e transferência (papel **Administrador do BigQuery**, ou dono do
-   projeto). A conta de serviço precisa de **Editor de dados do BigQuery** e
-   **Usuário de jobs do BigQuery**.
-5. Uma vez por projeto, liberar a exportação do Search Console: os dois
-   comandos do `cadastro.md`, seção 3A, item 4. Eles mudam permissão do
-   projeto, então a pessoa roda.
-6. **Teste:** `bq ls --project_id=<projeto>` lista os conjuntos sem erro.
-7. Grave o projeto em `projeto_bigquery` do `ambiente.json`.
+1. **Uma vez por projeto.**
+   a. **Faturamento ativo**, com alerta de orçamento (Faturamento →
+      Orçamentos e alertas). Sem faturamento, o BigQuery fica no modo
+      gratuito: tabelas se apagam com 60 dias e não há transferência de
+      Google Ads e Merchant nem exportação do Search Console.
+   b. **APIs:** `gcloud services enable bigquery.googleapis.com bigquerydatatransfer.googleapis.com sheets.googleapis.com analyticsdata.googleapis.com --project=<projeto>`.
+   c. **Conta de serviço das exportações**, dona das transferências. Ela não
+      pertence a ninguém do time, então nada para quando alguém sai:
+      `gcloud iam service-accounts create orq-exportacoes --project=<projeto> --display-name="Orquestrador exportações"`,
+      com os papéis `roles/bigquery.dataEditor` e `roles/bigquery.jobUser`
+      (`gcloud projects add-iam-policy-binding <projeto> --member=serviceAccount:orq-exportacoes@<projeto>.iam.gserviceaccount.com --role=<papel>`,
+      um comando por papel). Se o projeto já tem uma conta de serviço fazendo
+      esse papel, use a que existe. Grave o e-mail dela em
+      `conta_servico_exportacoes` do `ambiente.json`.
+   d. **Search Console:** a conta de exportação do Google precisa de dois
+      papéis no projeto:
+      `gcloud projects add-iam-policy-binding <projeto> --member=serviceAccount:search-console-data-export@system.gserviceaccount.com --role=roles/bigquery.jobUser`
+      e o mesmo com `--role=roles/bigquery.dataEditor`.
+2. **Por pessoa nova.**
+   a. Criar a conta de serviço dela:
+      `gcloud iam service-accounts create orq-<nome> --project=<projeto> --display-name="Orquestrador <Nome>"`.
+   b. Papéis da conta de serviço no projeto: `roles/bigquery.dataViewer` e
+      `roles/bigquery.jobUser`, com
+      `--member=serviceAccount:orq-<nome>@<projeto>.iam.gserviceaccount.com`.
+   c. Papéis da pessoa: `roles/bigquery.user` e `roles/bigquery.dataViewer`
+      no projeto, com `--member=user:<email>`, e o direito de criar a chave só
+      da conta dela:
+      `gcloud iam service-accounts add-iam-policy-binding orq-<nome>@<projeto>.iam.gserviceaccount.com --member=user:<email> --role=roles/iam.serviceAccountKeyAdmin --project=<projeto>`.
+   d. Mandar à pessoa o ID do projeto. Ela segue a trilha A.
+3. **Por coordenador**, quem cria as transferências no cadastro: além do item
+   2, `roles/bigquery.admin` no projeto e o direito de usar a conta das
+   exportações:
+   `gcloud iam service-accounts add-iam-policy-binding <conta das exportações> --member=user:<email> --role=roles/iam.serviceAccountUser --project=<projeto>`.
+   **Ligar o GA4 ao BigQuery exige ser proprietário do projeto** (regra do
+   Google, além de Editor no GA4). O dono liga, ou dá o papel `roles/owner` a
+   quem confiar.
+4. **Quando alguém sai do time:** apagar a conta de serviço da pessoa
+   (`gcloud iam service-accounts delete orq-<nome>@<projeto>.iam.gserviceaccount.com --project=<projeto>`),
+   o que inutiliza a chave que ficou no computador dela, e tirar os papéis do
+   e-mail dela (`gcloud projects remove-iam-policy-binding`, um por papel). Os
+   dados e as transferências continuam, porque são da conta das exportações.
+5. **Teste:** `bq ls --project_id=<projeto>` com o login da pessoa nova.
+6. Grave o projeto em `projeto_bigquery` do `ambiente.json`.
 
 ### GitHub
 
@@ -239,8 +307,10 @@ vez (cada um numa linha só):
 
 1. Refaça a tabela da etapa 1, agora com o resultado dos testes.
 2. Grave `~/.orquestrador-otimizacao/ambiente.json`: data, sistema, caminho do
-   Python do ambiente, caminho da chave, e-mail da conta de serviço (nunca a
-   chave), `projeto_bigquery` e o estado de cada item (`ok`, `falta`,
+   Python do ambiente, caminho da chave, e-mail da conta de serviço da pessoa
+   (nunca a chave), `projeto_bigquery`, `conta_servico_exportacoes` (o
+   coordenador informa; é o e-mail que entra no Google Ads e no Merchant de
+   cada cliente) e o estado de cada item (`ok`, `falta`,
    `opcional`, `erro: <msg>`). É por esse arquivo que o orquestrador sabe que o
    computador está pronto e pula a instalação nas próximas conversas.
    Computador que já funciona sem ele (preparado à mão, antes deste roteiro):

@@ -51,6 +51,8 @@
   },
   "bigquery": {
     "_uso": "conjuntos de dados das exportações (cadastro, seção 3A); a data de início de cada uma fica no CONTEXTO.md",
+    "projeto_ga4": "",
+    "_projeto_ga4": "vazio = o projeto da Convertr (projeto_bigquery do ambiente.json); preencha quando o GA4 do cliente já estiver vinculado a outro projeto (cadastro, seção 3A, item 2)",
     "ga4": "analytics_<id da propriedade>",
     "google_ads": "ads_<cliente>",
     "merchant": "merchant_<cliente>",

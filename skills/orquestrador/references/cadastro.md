@@ -166,55 +166,89 @@ são ligadas no cadastro, antes da auditoria inicial, e não depois.
 
 | Exportação | Quem liga e onde | Conjunto de dados | Região |
 |---|---|---|---|
-| GA4 | a pessoa, na tela: Administrador do GA4 → Vinculações do BigQuery, exportação diária | automático: `analytics_<id da propriedade>` | São Paulo |
-| Google Ads | o Claude, com `bq mk --transfer_config`, pedindo os dias anteriores | `ads_<cliente>` | São Paulo |
-| Merchant Center | o Claude, com `bq mk --transfer_config` | `merchant_<cliente>` | **EUA** |
-| Search Console | a pessoa, na tela: Configurações → Exportação em massa | `searchconsole_<cliente>` | São Paulo |
+| GA4 | quem é proprietário do projeto e Editor no GA4, na tela: Administrador do GA4 → Vinculações do BigQuery, exportação diária | automático: `analytics_<id da propriedade>` | São Paulo |
+| Google Ads | o Claude, com `bq mk --transfer_config` e o login de um coordenador, pedindo os dias anteriores | `ads_<cliente>` | São Paulo |
+| Merchant Center | o Claude, com `bq mk --transfer_config` e o login de um coordenador | `merchant_<cliente>` | **EUA** |
+| Search Console | o proprietário da propriedade no Search Console, na tela: Configurações → Exportação em massa de dados | `searchconsole_<cliente>` | São Paulo |
 
-`<cliente>` é o nome da pasta do cliente, sem hífen. O projeto é o do Google
-Cloud do ambiente (`ambiente.json`, campo `projeto_bigquery`).
+`<cliente>` é o nome da pasta do cliente, sem hífen. O projeto é o da
+Convertr (`ambiente.json`, campo `projeto_bigquery`), com faturamento ativo.
+Num projeto sem faturamento as transferências e o Search Console não rodam e
+as tabelas se apagam com 60 dias: não ligue exportação de cliente nele
+(`instalacao.md`, trilha A, "Sem acesso ao projeto da Convertr").
 
-1. **Antes, uma vez por cliente, o gestor dá acesso à conta de serviço:**
-   administrador no GA4 e no Merchant Center, a conta do Google Ads visível na
-   MCC dela, e proprietário no Search Console. Com isso, o Claude lê tudo.
-2. **Quem cria as transferências.** A conta de serviço sozinha não cria
+1. **Acessos do cliente, uma vez por cliente.** São dois e-mails de conta de
+   serviço. O da pessoa (`orq-<nome>`, no `ambiente.json`) lê planilha e GA4
+   pelos scripts. O das exportações (`conta_servico_exportacoes`, no
+   `ambiente.json`) é dono das transferências e não sai do projeto quando
+   alguém sai do time.
+
+   | Onde | E-mail | Papel | Quem consegue adicionar, e onde |
+   |---|---|---|---|
+   | Planilhas (metas e base de pedidos) | o da pessoa | Leitor | quem edita a planilha: **Compartilhar** → colar → **Leitor** → desmarcar "Notificar" → **Compartilhar** |
+   | GA4 | o da pessoa | Leitor | administrador do GA4: **Administrador** → **Gerenciamento de acesso à propriedade** → **+** → **Adicionar usuários** |
+   | Google Ads | o das exportações | Somente leitura | na MCC, uma vez, vale para todas as contas dela: administrador da MCC → **Administrador** → **Acesso e segurança** → **+**. Sem MCC, o administrador da conta do cliente faz o mesmo na conta. Analista com acesso só à conta, sem ser administrador, pede ao coordenador |
+   | Merchant Center | o das exportações | Acesso padrão | administrador do Merchant: **Configurações** → **Pessoas e acesso** → **Adicionar pessoa** |
+   | Search Console | nenhum | | a exportação não usa conta de serviço; só exige que quem liga seja proprietário da propriedade |
+   | Meta | nenhum | | o conector usa o Facebook da pessoa, que precisa ver a conta de anúncio no portfólio do cliente |
+   | Clarity | nenhum | | token do projeto do cliente (seção 4, "Clarity com mais de um cliente") |
+
+   Quem não consegue adicionar não insiste: registra no `ABERTO.md` quem
+   precisa fazer o quê e segue com as outras fontes.
+2. **O GA4 aceita um vínculo com o BigQuery só.** Antes de ligar, abra
+   Administrador → Vinculações do BigQuery. Com um vínculo feito, o botão
+   **Vincular** fica desligado (visto em 29/10/2026). Se o vínculo for com o
+   projeto da Convertr, só confira o conjunto. Se for com outro projeto (do
+   cliente ou de outra agência), não desfaça: desvincular corta a exportação
+   de quem usa. Peça ao dono daquele projeto leitura no conjunto
+   (`roles/bigquery.dataViewer` no `analytics_<id>`, para o e-mail da pessoa
+   e o da conta de serviço dela) e grave o projeto em `bigquery.projeto_ga4`
+   do `cliente.json`. Sem a leitura, a fonte fica "GA4 no BigQuery de outro
+   projeto, sem acesso". No Search Console, se a tela já mostrar uma
+   exportação para outro projeto, siga o mesmo caminho.
+3. **Quem cria as transferências.** A conta de serviço sozinha não cria
    transferência (falta a permissão `bigquery.transfers.update`). O Claude
-   cria as de Google Ads e Merchant com o login da pessoa no `gcloud` deste
-   computador, apontando a conta de serviço como dona
-   (`--service_account_name`). Sem `gcloud` logado, rode antes a trilha F da
-   instalação. Criar transferência muda configuração do projeto: mostre o
-   comando e espere o "ok" da pessoa. GA4 e Search Console não têm caminho
-   por programa e são ligados na tela, com o passo a passo da tabela.
-3. **Merchant fica nos EUA.** Em São Paulo, todas as cargas do Merchant
-   falham com "Failed to schedule run". Crie o conjunto `merchant_<cliente>`
-   com `--location=US`. Consequência: uma consulta não junta Merchant com GA4
-   ou Google Ads direto; leia cada um e cruze o resultado.
-4. **Search Console:** uma vez por projeto, a conta de exportação do Google
-   precisa de dois papéis. São dois comandos que a pessoa roda (mudam
-   permissão do projeto):
-   `gcloud projects add-iam-policy-binding <projeto> --member=serviceAccount:search-console-data-export@system.gserviceaccount.com --role=roles/bigquery.jobUser`
-   e o mesmo com `--role=roles/bigquery.dataEditor`.
-5. **A exportação começa no dia em que é ligada.** GA4, Merchant e Search
-   Console não trazem o passado; o Google Ads aceita pedir dias anteriores,
-   uma carga por dia, que entram em fila e levam horas. Os caminhos de
-   conversão do GA4 antes da exportação saem pela tela (Publicidade →
-   Caminhos de conversão → exportar). Grave no `CONTEXTO.md` a data de início
-   de cada uma: antes dela, a resposta é "sem dado no BigQuery", e um buraco no
-   meio (exportação que parou e voltou) também fica escrito com as datas.
-   Confira também se a transferência grava no conjunto certo: transferência
-   apontando para um conjunto apagado ou renomeado para de carregar sem aviso.
-6. **Custo.** A exportação diária do GA4 e as transferências de Google Ads e
-   Merchant não cobram. A exportação contínua do GA4 (streaming) cobra por
-   volume: deixe desligada, salvo pedido. Consulta tem 1 TB grátis por mês;
-   acima de 1 GB processado, pare e pergunte.
-7. Grave os nomes dos conjuntos em `bigquery` do `cliente.json`.
-8. Teste cada conjunto com uma consulta pequena (uma tabela, um dia, poucas
+   cria as de Google Ads e Merchant com o login no `gcloud` de um coordenador
+   (`instalacao.md`, trilha F, item 3), apontando a conta das exportações
+   como dona (`--service_account_name`). Sem `gcloud` logado, rode antes a
+   trilha A. Sem o papel de coordenador, o erro é de permissão: registre no
+   `ABERTO.md` e peça ao coordenador. Criar transferência muda configuração
+   do projeto: mostre o comando e espere o "ok" da pessoa. GA4 e Search
+   Console não têm caminho por programa e são ligados na tela, com o passo a
+   passo da tabela.
+4. **Merchant fica nos EUA.** São Paulo não está entre as regiões que a
+   transferência do Merchant aceita, e todas as cargas falham com "Failed to
+   schedule run". Crie o conjunto `merchant_<cliente>` com `--location=US`.
+   Consequência: uma consulta não junta Merchant com GA4 ou Google Ads direto;
+   leia cada um e cruze o resultado.
+5. **Search Console:** os dois papéis da conta de exportação do Google são
+   dados uma vez por projeto, na trilha F, item 1d. Depois disso, cada cliente
+   só precisa ser ligado na tela.
+6. **O que cada exportação traz do passado.** GA4 e Search Console começam no
+   dia em que são ligados. O Google Ads aceita pedir dias anteriores, uma
+   carga por dia, que entram em fila e levam horas. O Merchant pede sozinho os
+   dois dias anteriores; desempenho e mais vendidos aceitam até 2 anos para
+   trás, produtos e estoque até 14 dias, e preço competitivo nada. Os
+   caminhos de conversão do GA4 antes da exportação saem pela tela
+   (Publicidade → Caminhos de conversão → exportar). Grave no `CONTEXTO.md` a
+   data de início de cada uma: antes dela, a resposta é "sem dado no
+   BigQuery", e um buraco no meio (exportação que parou e voltou) também fica
+   escrito com as datas. Confira também se a transferência grava no conjunto
+   certo: transferência apontando para um conjunto apagado ou renomeado para
+   de carregar sem aviso.
+7. **Custo.** A exportação diária do GA4 e as transferências de Google Ads e
+   Merchant não cobram; o armazenamento sai no faturamento do projeto da
+   Convertr. A exportação contínua do GA4 (streaming) cobra por volume:
+   deixe desligada, salvo pedido. Consulta tem 1 TB grátis por mês; acima de
+   1 GB processado, pare e pergunte.
+8. Grave os nomes dos conjuntos em `bigquery` do `cliente.json`.
+9. Teste cada conjunto com uma consulta pequena (uma tabela, um dia, poucas
    colunas) e ponha o resultado na tabela "Fontes". Conjunto que ainda não
    recebeu o primeiro dia fica "ligado, aguardando o primeiro dia".
-9. **Na auditoria inicial, o BigQuery vem primeiro:** consulte o que ele
-   cobre e chame os leitores só para o que ele não cobre (estrutura das
-   contas, criativos, histórico de alterações, concorrentes). A regra de
-   parar e perguntar antes de consulta que cobre continua valendo.
+10. **Na auditoria inicial, o BigQuery vem primeiro:** consulte o que ele
+    cobre e chame os leitores só para o que ele não cobre (estrutura das
+    contas, criativos, histórico de alterações, concorrentes). A regra de
+    parar e perguntar antes de consulta que cobre continua valendo.
 
 ## 4. Testar cada fonte
 

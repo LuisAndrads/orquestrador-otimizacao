@@ -43,8 +43,9 @@ Requisitos (o modo `preparar` confere e instala):
 
 1. **Python 3** no computador. O cadastro cria o ambiente dos scripts em
    `~/.orquestrador-otimizacao/venv`.
-2. **Conta de serviço do Google** com acesso de leitor às planilhas do cliente
-   (planilha de metas e base de pedidos).
+2. **Conta de serviço do Google**, uma por pessoa, criada pelo coordenador no
+   projeto do Google Cloud da Convertr, com acesso de leitor às planilhas e ao
+   GA4 do cliente. A pessoa não cria projeto nem cadastra cartão.
 3. **Conector do Meta** no Claude (Configurações → Conectores). GA4 e
    planilhas são lidos pelos scripts com a conta de serviço, sem MCP. Google
    Ads, Merchant e Clarity são opcionais: fonte sem acesso vira "sem acesso" e
@@ -54,8 +55,8 @@ Requisitos (o modo `preparar` confere e instala):
    de colunas fica no `cliente.json`). **Plataforma Convertr:** a régua do dia
    a dia vem da aba `dados_bq` da PDA 13.0; o pedido a pedido com UTM vem da
    exportação de pedidos do painel (`pedidos.py --painel`).
-5. Para a auditoria inicial: **Google Cloud CLI** (`gcloud` e `bq`) logado,
-   para ligar as exportações do BigQuery.
+5. **Google Cloud CLI** (`gcloud` e `bq`), no Mac ou no Windows, logado com o
+   e-mail da pessoa: cria a chave da conta de serviço e consulta o BigQuery.
 
 ## Usar
 
