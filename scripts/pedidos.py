@@ -18,15 +18,20 @@ Plataforma Convertr (base_pedidos.tipo = "dados_bq"): a aba dados_bq não tem
 pedido por linha nem UTM (a exportação de pedidos do painel tem, e é lida à
 parte). O script soma a aba dados_bq da PDA 13.0 (um dia por linha; linha com
 channel vazio = pedidos da loja; linha com channel preenchido = mídia e GA4 do
-canal). O modo `utm` não existe nessa plataforma; use `canais`.
+canal). O modo `utm` só existe com a exportação de pedidos do painel
+(`--painel <csv>`): um pedido por item, UTMs no campo `additional`. O arquivo
+tem dado pessoal; fica fora do git e o script só imprime números somados.
 
 Uso:
     python pedidos.py --cliente clientes/hocks/cliente.json totais 2026-09-21 2026-09-27 --por-dia
     python pedidos.py --cliente clientes/hocks/cliente.json utm 2026-09-21 2026-09-27 --nivel conjunto --fonte meta
     python pedidos.py --cliente clientes/hocks/cliente.json canais 2026-09-21 2026-09-27   (só Convertr)
+    python pedidos.py --cliente <json> utm 2026-09-01 2026-09-30 --painel pedidos.csv --nivel conjunto   (Convertr)
 """
 
 import argparse
+import csv
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime, timedelta
@@ -170,7 +175,71 @@ def agrega_dados_bq(cab, linhas, c_data, c_canal, ini, fim, por_dia=False, modo=
     return grupos, dias
 
 
+def le_painel(caminho, excluir_email):
+    """Exportação de pedidos do painel Convertr: uma linha por item; conta cada pedido uma vez."""
+    pedidos, teste = {}, 0
+    with open(caminho, encoding="utf-8-sig", newline="") as arq:
+        for r in csv.DictReader(arq):
+            pedidos.setdefault(r["increment_id"], r)
+    saida = []
+    for r in pedidos.values():
+        email = (r.get("customer_email") or "").lower()
+        if "interno" in (r.get("payment_method") or "").lower() or any(e in email for e in excluir_email):
+            teste += 1
+            continue
+        utm = {}
+        for parte in (r.get("additional") or "").split(";"):
+            if ":" in parte:
+                k, v = parte.split(":", 1)
+                utm[k.strip()] = v.strip()
+        saida.append({
+            "data": datetime.strptime(r["created_at"][:10], "%d/%m/%Y").date(),
+            "total": float(r["total"] or 0),
+            "faturado": not re.search("cancel|reembols|pendente", r["status"], re.I),
+            "utm": utm,
+        })
+    return saida, teste
+
+
+def main_painel(a):
+    ini = datetime.strptime(a.inicio, "%Y-%m-%d").date()
+    fim = datetime.strptime(a.fim, "%Y-%m-%d").date()
+    excluir = [e.lower() for e in a.excluir_email]
+    pedidos, teste = le_painel(a.painel, excluir)
+    print(f"Exportação do painel, pedidos criados de {a.inicio} a {a.fim}")
+    print(f"Pedidos de teste fora da conta (pagamento interno ou e-mail com {excluir or '-'}): {teste}, "
+          "contando o arquivo inteiro")
+    print("Faturado = status sem Cancelado, Reembolsado ou Pendente. Confira o mês contra a dados_bq "
+          "(`totais`) antes de usar.")
+    grupos = defaultdict(lambda: [0, 0.0, 0, 0.0])
+    for r in pedidos:
+        if not (ini <= r["data"] <= fim):
+            continue
+        if a.modo == "totais":
+            chave = (r["data"].isoformat(),) if a.por_dia else ("TOTAL",)
+        else:
+            fonte = r["utm"].get("utm_source", "")
+            if a.fonte and a.fonte.lower() not in fonte.lower():
+                continue
+            chave = ("(sem utm)",) if not fonte else tuple(r["utm"].get(k) or "-" for k in NIVEIS[a.nivel])
+        g = grupos[chave]
+        g[0] += 1
+        g[1] += r["total"]
+        if r["faturado"]:
+            g[2] += 1
+            g[3] += r["total"]
+    titulo = "dia" if a.modo == "totais" else "\t".join(NIVEIS[a.nivel])
+    print(f"{titulo}\tpedidos\tcaptado\tpedidos_faturados\tfaturado")
+    ordem = sorted(grupos.items()) if a.modo == "totais" else sorted(grupos.items(), key=lambda x: -x[1][3])
+    for chave, g in ordem:
+        print("\t".join(chave) + f"\t{g[0]}\t{g[1]:.2f}\t{g[2]}\t{g[3]:.2f}")
+    if a.modo == "utm":
+        print("Pedido sem UTM não prova canal nenhum. O canal agregado segue vindo do GA4 (`canais`).")
+
+
 def main_dados_bq(cliente, a):
+    if a.painel and a.modo in ("totais", "utm"):
+        return main_painel(a)
     if a.modo == "utm":
         print("Pedido por canal: a aba dados_bq não tem pedido por linha nem UTM. Use o modo "
               "`canais` (receita e compras do GA4 por canal). O pedido a pedido com UTM está "
@@ -223,6 +292,9 @@ def main():
     p.add_argument("--por-dia", action="store_true")
     p.add_argument("--nivel", choices=NIVEIS, default="campanha")
     p.add_argument("--fonte", help="filtra utm_source que contenha este texto")
+    p.add_argument("--painel", help="Convertr: CSV da exportação de pedidos do painel (fora do git)")
+    p.add_argument("--excluir-email", action="append", default=[],
+                   help="Convertr com --painel: tira pedidos de teste cujo e-mail contenha este texto")
     a = p.parse_args()
 
     cliente = carrega_cliente(a.cliente)

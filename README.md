@@ -14,6 +14,7 @@ para qualquer cliente.
 
 | Peça | O que faz |
 |---|---|
+| `skills/auditoria-inicial/` | A primeira auditoria do cliente, seis meses, chamada ao fim do cadastro |
 | `skills/orquestrador/` | A porta de entrada. Modos: `preparar`, `cadastrar`, `retomar`, `segunda`, `quinta`, `registrar` |
 | `skills/orquestrador/references/metodo.md` | O método: norte, métricas secundárias, ordem da análise, segunda e quinta, critérios da varredura, gatilhos, diário |
 | `skills/orquestrador/references/regras.md` | Regras aprendidas no uso real: três réguas, jornada antes de pausar, estado de hoje, estrutura da Shopping, recomendação externa, token |
@@ -50,8 +51,11 @@ Requisitos (o modo `preparar` confere e instala):
    a análise segue com o resto.
 4. Para a régua da loja, a **Base de Dados de pedidos** do cliente (planilha
    alimentada pela plataforma: Nuvemshop, Tray, Shopify, VTEX ou outra; o mapa
-   de colunas fica no `cliente.json`). **Plataforma Convertr:** não há base por
-   pedido; os pedidos vêm da aba `dados_bq` da PDA 13.0.
+   de colunas fica no `cliente.json`). **Plataforma Convertr:** a régua do dia
+   a dia vem da aba `dados_bq` da PDA 13.0; o pedido a pedido com UTM vem da
+   exportação de pedidos do painel (`pedidos.py --painel`).
+5. Para a auditoria inicial: **Google Cloud CLI** (`gcloud` e `bq`) logado,
+   para ligar as exportações do BigQuery.
 
 ## Usar
 

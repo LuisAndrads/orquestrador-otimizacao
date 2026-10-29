@@ -1,6 +1,6 @@
 ---
 name: orquestrador
-description: Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr) — prepara o computador de quem vai usar (instala Python e guia Google Cloud, Meta e demais acessos), cadastra um cliente novo, retoma o contexto de um cliente já cadastrado e roda a otimização semanal com agentes leitores (projeto, Meta, Google, funil, mercado), entregando o diário de bordo. Use sempre que alguém pedir para "ativar o orquestrador", "ativar o coordenador", "iniciar a otimização", "otimizar a conta", "fazer a análise da semana" ou "o diário de bordo" de um cliente (ex.: "ativar o orquestrador da Hocks", "vamos otimizar a Angelina", "coordenador da loja X"), para cadastrar um cliente no orquestrador, para registrar o que foi executado depois de uma rodada, ou quando a conversa começar com um pedido de análise de mídia paga de uma loja que tenha pasta em clientes/.
+description: Orquestrador de otimização de contas de e-commerce (método eFashion/Convertr) — prepara o computador de quem vai usar (instala Python e guia Google Cloud, Meta e demais acessos), cadastra um cliente novo, retoma o contexto de um cliente já cadastrado e roda a otimização semanal com agentes leitores (projeto, Meta, Google, funil, mercado), entregando o diário de bordo. Use sempre que alguém pedir para "ativar o orquestrador", "ativar o coordenador", "iniciar a otimização", "otimizar a conta", "fazer a análise da semana" ou "o diário de bordo" de um cliente (ex.: "ativar o orquestrador da Hocks", "vamos otimizar a Angelina", "coordenador da loja X"), para cadastrar um cliente no orquestrador ou fazer o setup de um cliente novo (que termina na auditoria inicial), para registrar o que foi executado depois de uma rodada, ou quando a conversa começar com um pedido de análise de mídia paga de uma loja que tenha pasta em clientes/.
 ---
 
 # Orquestrador de otimização
@@ -34,7 +34,8 @@ lugar de espaço).
 | Situação | Modo |
 |---|---|
 | `~/.orquestrador-otimizacao/ambiente.json` não existe, ou a pessoa pediu para instalar ou configurar | `preparar` |
-| A pasta ou o `cliente.json` não existe | `cadastrar` |
+| A pasta ou o `cliente.json` não existe, ou a pessoa pediu o setup de um cliente novo | `cadastrar` e, em seguida, a auditoria inicial |
+| Cliente cadastrado sem `clientes/<cliente>/auditoria/*_auditoria-inicial.md`, ou a pessoa pediu a auditoria inicial | skill `orquestrador-otimizacao:auditoria-inicial` |
 | Existe, e a pessoa só ativou ou pediu "o que temos" | `retomar` |
 | Pediu a otimização de segunda, a "obrigatória", ou é segunda-feira e pediu a rodada | `segunda` |
 | Pediu a rodada de quinta, de oportunidade, ou é quinta e pediu a rodada | `quinta` |
@@ -66,11 +67,15 @@ funcionando ou marcado como "sem acesso". Antes da auditoria inicial, as
 exportações para o BigQuery ficam ligadas (`cadastro.md`, seção 3A) e, em loja
 Convertr, as exportações do painel pedidas (seção 2A, item 7).
 
-**Auditoria inicial (seis meses).** Custa de 1 a 1,5 milhão de tokens, bem
-mais que uma rodada: diga isso antes. Para não estourar o limite de uso:
-consulte o BigQuery primeiro; rode no máximo dois leitores ao mesmo tempo;
-dê a cada leitor um arquivo de retorno; e não repita na conversa principal
-as consultas que já pediu aos leitores.
+**O setup de um cliente novo é uma sequência só:** instalação, se o
+computador ainda não tiver (`preparar`); cadastro, com integrações, BigQuery,
+teste de cada fonte e a lista do que falta, pedida ao gestor numa mensagem
+só; e, com o cadastro completo, a auditoria inicial. Ao fechar o cadastro,
+mostre o que ficou pendente e pergunte se a auditoria começa agora. Com o
+"sim", carregue a skill `orquestrador-otimizacao:auditoria-inicial`. Ela custa
+de 1 a 1,5 milhão de tokens e tem as regras para não estourar o limite de uso.
+Se a conversa do cadastro já estiver longa, sugira abrir uma nova para a
+auditoria.
 
 ## 3. Modo `retomar`
 

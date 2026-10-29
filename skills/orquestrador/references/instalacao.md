@@ -32,14 +32,15 @@ Windows no PowerShell.
 | Google Ads por MCP | ferramentas `google-ads` ou `gads_` | idem | não |
 | Clarity | ferramentas `Clarity` | idem | não |
 | Claude in Chrome | ferramentas `claude-in-chrome` | idem | não |
+| Google Cloud no computador (BigQuery) | `gcloud --version; bq version; gcloud auth list` | idem | para a auditoria inicial |
 
 No Mac, `python3 --version` sem as ferramentas de linha de comando abre uma
 janela pedindo para instalá-las: isso é esperado e vira item da etapa 2.
 
-Não são necessários: Google Cloud instalado no computador (`gcloud`), GitHub,
-Git, MCP do Google Sheets nem MCP do Google Drive. As planilhas e o GA4 são
-lidos pelos scripts do plugin com a chave da conta de serviço, e o Google Cloud
-é usado só pelo navegador.
+Não são necessários: GitHub, Git, MCP do Google Sheets nem MCP do Google
+Drive. As planilhas e o GA4 são lidos pelos scripts do plugin com a chave da
+conta de serviço. O Google Cloud no computador (`gcloud` e `bq`) só é preciso
+para ligar as exportações do BigQuery antes da auditoria inicial (trilha F).
 
 Mostre a tabela com ✅, ❌ e "opcional", e diga em uma frase o que falta.
 
@@ -194,6 +195,29 @@ Instalar a extensão **Claude** na Chrome Web Store, entrar com a mesma conta
 do Claude e fixar o ícone. Serve para ler a Biblioteca de Anúncios do Meta e
 a interface do Google Ads quando a ferramenta não traz o dado.
 
+### Trilha F. BigQuery no computador (para a auditoria inicial)
+
+Uma vez por pessoa e computador. Sem ela, as rodadas funcionam, mas a
+auditoria inicial lê tudo pelos leitores, custa mais e não tem caminho de
+conversão.
+
+1. Instalar o Google Cloud CLI, que traz `gcloud` e `bq`: no Mac,
+   `brew install --cask google-cloud-sdk`; no Windows, o instalador de
+   https://cloud.google.com/sdk/docs/install.
+2. Login com a conta do Google que administra o projeto: `gcloud auth login`
+   (abre o navegador). Depois, `gcloud config set project <projeto>`.
+3. Ativar a API de transferências:
+   https://console.cloud.google.com/apis/library/bigquerydatatransfer.googleapis.com
+4. Conferir as permissões da pessoa no projeto: precisa poder criar conjunto
+   de dados e transferência (papel **Administrador do BigQuery**, ou dono do
+   projeto). A conta de serviço precisa de **Editor de dados do BigQuery** e
+   **Usuário de jobs do BigQuery**.
+5. Uma vez por projeto, liberar a exportação do Search Console: os dois
+   comandos do `cadastro.md`, seção 3A, item 4. Eles mudam permissão do
+   projeto, então a pessoa roda.
+6. **Teste:** `bq ls --project_id=<projeto>` lista os conjuntos sem erro.
+7. Grave o projeto em `projeto_bigquery` do `ambiente.json`.
+
 ### GitHub
 
 Não é preciso: o repositório do plugin é público.
@@ -216,7 +240,12 @@ vez (cada um numa linha só):
 1. Refaça a tabela da etapa 1, agora com o resultado dos testes.
 2. Grave `~/.orquestrador-otimizacao/ambiente.json`: data, sistema, caminho do
    Python do ambiente, caminho da chave, e-mail da conta de serviço (nunca a
-   chave) e o estado de cada item (`ok`, `falta`, `opcional`, `erro: <msg>`).
+   chave), `projeto_bigquery` e o estado de cada item (`ok`, `falta`,
+   `opcional`, `erro: <msg>`). É por esse arquivo que o orquestrador sabe que o
+   computador está pronto e pula a instalação nas próximas conversas.
+   Computador que já funciona sem ele (preparado à mão, antes deste roteiro):
+   rode só a etapa 1, grave o arquivo com o que achou e siga para o cadastro,
+   sem reinstalar nada.
 3. Grave `Convertr/relatorio-instalacao.md` com o que foi feito, o que travou
    (mensagem exata e o que resolveu) e o tempo de cada trilha, e peça para a
    pessoa mandar esse arquivo ao Luis. Ele usa esses relatórios para melhorar

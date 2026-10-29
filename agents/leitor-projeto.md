@@ -27,7 +27,8 @@ total do dia da aba `dados_bq` da PDA 13.0 (`pedidos.py totais`), que não tem
 pedido por linha nem UTM. Use a divisão por canal do GA4 (`pedidos.py canais`:
 totalRevenue e totalPurchasers por channel). Pedido por canal só existe na
 exportação do painel: se o pedido do orquestrador trouxer o caminho de uma,
-use-a; se não, escreva "pedido por canal: sem exportação do painel para o
+use `pedidos.py ... utm <ini> <fim> --painel <csv>` (e `totais --painel` para
+conferir o faturado contra a `dados_bq`); se não, escreva "pedido por canal: sem exportação do painel para o
 período", sem estimar. A última semana é provisória: aprovados mudam nos dias seguintes;
 releia sempre, nunca reaproveite número de outra rodada. O dia de hoje está
 incompleto. Nunca altere `B2` e `C2` da aba "Acom. - Funil & Canais" (são
